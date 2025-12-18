@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Score Calculator</title>
+    <style>
+        /* Reset and basic styling */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* Main container */
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        /* Title styling */
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+
+        /* Form group styling */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        /* Input field styling */
+        input[type="number"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: #f9f9f9;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* Time inputs container */
+        .time-inputs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .time-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Calculate button styling */
+        .btn-calculate {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-calculate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-calculate:active {
+            transform: translateY(0);
+        }
+
+        /* Result section styling */
+        .result-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+        }
+
+        .result-label {
+            color: #555;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .result-value {
+            font-size: 2em;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        /* Formula explanation */
+        .formula {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fff3cd;
+            border-radius: 8px;
+            border-left: 4px solid #ffc107;
+            font-size: 0.9em;
+            color: #856404;
+        }
+
+        .formula strong {
+            color: #664d03;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⏱️ Score Calculator</h1>
+        <p class="subtitle">Calculate score based on time duration</p>
+
+        <!-- Input form -->
+        <form id="calculatorForm">
+            <!-- Score input -->
+            <div class="form-group">
+                <label for="score">Total Score (scr):</label>
+                <input type="number" id="score" placeholder="Enter total score" required min="0">
+            </div>
+
+            <!-- Time inputs -->
+            <div class="form-group">
+                <label>Time Duration:</label>
+                <div class="time-inputs">
+                    <div class="time-group">
+                        <label for="hours">Hours (h)</label>
+                        <input type="number" id="hours" placeholder="0" required min="0">
+                    </div>
+                    <div class="time-group">
+                        <label for="minutes">Minutes (m)</label>
+                        <input type="number" id="minutes" placeholder="0" required min="0" max="59">
+                    </div>
+                    <div class="time-group">
+                        <label for="seconds">Seconds (s)</label>
+                        <input type="number" id="seconds" placeholder="0" required min="0" max="59">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calculate button -->
+            <button type="submit" class="btn-calculate">Calculate Result</button>
+        </form>
+
+        <!-- Result display -->
+        <div class="result-section" id="resultSection" style="display: none;">
+            <div class="result-label">Result (ans):</div>
+            <div class="result-value" id="resultValue">0</div>
+        </div>
+
+        <!-- Formula explanation -->
+        <div class="formula">
+            <strong>Formula:</strong><br>
+            ans = scr / (h × 3600 + m × 60 + s) × 3600<br>
+            <small>Converts time to seconds, divides score, multiplies by 3600</small>
+        </div>
+    </div>
+
+    <script>
+        // Get form element
+        const form = document.getElementById('calculatorForm');
+        
+        // Get result section elements
+        const resultSection = document.getElementById('resultSection');
+        const resultValue = document.getElementById('resultValue');
+
+        // Add event listener for form submission
+        form.addEventListener('submit', function(e) {
+            // Prevent default form submission (page reload)
+            e.preventDefault();
+            
+            // Get input values from form fields
+            const scr = parseInt(document.getElementById('score').value);
+            const h = parseInt(document.getElementById('hours').value);
+            const m = parseInt(document.getElementById('minutes').value);
+            const s = parseInt(document.getElementById('seconds').value);
+            
+            // Calculate total time in seconds
+            // Formula: totalSeconds = hours*3600 + minutes*60 + seconds
+            const totalSeconds = h * 3600 + m * 60 + s;
+            
+            // Check if total time is zero (avoid division by zero)
+            if (totalSeconds === 0) {
+                alert('Time duration cannot be zero!');
+                return;
+            }
+            
+            // Calculate the result using the C++ formula
+            // ans = scr / totalSeconds * 3600
+            const ans = Math.floor(scr / totalSeconds * 3600);
+            
+            // Format the result with comma separators
+            // Example: 3179492 -> 3,179,492
+            const formattedAns = ans.toLocaleString('en-US');
+            
+            // Display the formatted result
+            resultValue.textContent = formattedAns;
+            resultSection.style.display = 'block';
+            
+            // Smooth scroll to result
+            resultSection.scrollIntoView({ behavior: 'smooth' });
+        });
+
+        // Add input validation for minutes and seconds (0-59)
+        document.getElementById('minutes').addEventListener('input', function() {
+            if (this.value > 59) this.value = 59;
+            if (this.value < 0) this.value = 0;
+        });
+
+        document.getElementById('seconds').addEventListener('input', function() {
+            if (this.value > 59) this.value = 59;
+            if (this.value < 0) this.value = 0;
+        });
+    </script>
+</body>
+</html>
